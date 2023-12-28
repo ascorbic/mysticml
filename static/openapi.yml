@@ -11,6 +11,7 @@ servers:
 paths:
   /ephemeris:
     get:
+      operationId: getEphemeris
       summary: Get Ephemeris Data
       description: Returns ephemeris data for specified celestial bodies at a given datetime or the current datetime if not specified.
       parameters:
@@ -52,6 +53,7 @@ paths:
             application/json:
               schema:
                 type: object
+                properties: null
                 additionalProperties: true
         '400':
           description: Bad request due to invalid parameters.

@@ -25,7 +25,7 @@ export default async function handler(req: Request) {
 	const latitude = parseFloat(url.searchParams.get("latitude")!);
 	const longitude = parseFloat(url.searchParams.get("longitude")!);
 
-	if (!isNaN(latitude) || isNaN(longitude)) {
+	if (isNaN(latitude) || isNaN(longitude)) {
 		return new Response("Invalid parameters", { status: 400 });
 	}
 
