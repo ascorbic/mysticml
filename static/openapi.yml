@@ -1,0 +1,57 @@
+openapi: 3.0.0
+info:
+  title: Ephemeris API
+  version: 1.0.0
+  description: API to retrieve ephemeris data for celestial bodies based on a specific datetime.
+
+servers:
+  - url: https://mysticml.netlify.app
+    description: Netlify Edge Function
+
+paths:
+  /ephemeris:
+    get:
+      summary: Get Ephemeris Data
+      description: Returns ephemeris data for specified celestial bodies at a given datetime or the current datetime if not specified.
+      parameters:
+        - name: bodies
+          in: query
+          description: >
+            Comma-separated list of celestial bodies. If not specified, data for all bodies is returned.
+            Valid celestial bodies include: mercury, venus, mars, jupiter, saturn, uranus, neptune, pluto, sun, moon, chiron.
+          required: false
+          schema:
+            type: string
+        - name: datetime
+          in: query
+          description: >
+            The date and time for which ephemeris data is requested, in ISO 8601 format (e.g., 2023-12-31T23:59:59Z).
+            If not specified, the current date and time is used.
+          required: false
+          schema:
+            type: string
+            format: date-time
+        - name: latitude
+          in: query
+          description: Latitude for location-based ephemeris.
+          required: true
+          schema:
+            type: number
+            format: float
+        - name: longitude
+          in: query
+          description: Longitude for location-based ephemeris.
+          required: true
+          schema:
+            type: number
+            format: float
+      responses:
+        '200':
+          description: Successful response with ephemeris data.
+          content:
+            application/json:
+              schema:
+                type: object
+                additionalProperties: true
+        '400':
+          description: Bad request due to invalid parameters.
