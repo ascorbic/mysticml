@@ -5,7 +5,8 @@ info:
   description: API to retrieve ephemeris data for celestial bodies based on a specific datetime.
 
 servers:
-  - url: https://mysticml.netlify.app
+  #  Put your site URL here
+  - url: https://example.netlify.app
     description: Netlify Edge Function
 
 paths:
