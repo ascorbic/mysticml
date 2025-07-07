@@ -1,31 +1,87 @@
 import Ephemeris from "https://esm.sh/gh/0xStarcat/Moshier-Ephemeris-JS/src/Ephemeris.js";
 
 export const ALL_BODIES = [
+  "sun",
+  "moon",
   "mercury",
   "venus",
+  "earth",
   "mars",
   "jupiter",
   "saturn",
   "uranus",
   "neptune",
   "pluto",
-  "sun",
-  "moon",
   "chiron",
+  "sirius",
 ] as const;
 
 export type CelestialBody = (typeof ALL_BODIES)[number];
 
 export interface EphemerisParams {
-  bodies?: string[];
+  bodies?: CelestialBody[];
   datetime?: string;
   latitude: number;
   longitude: number;
 }
 
-export interface EphemerisResult {
-  [key: string]: unknown;
+// Coordinate system interfaces
+export interface ApparentGeocentricCoords {
+  longitude: number;
+  latitude: number;
+  distance: number;
 }
+
+export interface AltazData {
+  altitude: number;
+  azimuth: number;
+  atmosphericRefraction?: number;
+  diurnalAberation?: number;
+  diurnalParallax?: number;
+  topocentric?: unknown;
+  transit?: unknown;
+}
+
+export interface ApproxVisual {
+  magnitude: number;
+  phase: number;
+}
+
+// Main position data interface
+export interface CelestialBodyPosition {
+  // Primary coordinate properties
+  longitude: number;
+  latitude: number;
+  apparentLongitude: number;
+  apparentLongitudeString: string;
+  apparentLongitude30String: string;
+
+  // Distance and positioning
+  geocentricDistance: number;
+  trueGeocentricDistance: number;
+  equatorialDiameter: number;
+
+  // Coordinate systems
+  apparentGeocentric: ApparentGeocentricCoords;
+  astrometricB1950: unknown;
+  astrometricJ2000: unknown;
+  polar: number[];
+  rect: number[];
+
+  // Local observation data
+  altaz: AltazData;
+  altitude: number; // Direct access to altitude
+  azimuth: number; // Direct access to azimuth
+
+  // Additional properties
+  constellation: string;
+  approxVisual: ApproxVisual;
+}
+
+// Alternatively, we could use a type alias for the mapped type
+export type EphemerisResult = {
+  [K in CelestialBody]?: CelestialBodyPosition;
+};
 
 export interface ValidationResult {
   isValid: boolean;
@@ -81,18 +137,14 @@ export function calculateEphemeris(params: EphemerisParams): EphemerisResult {
     latitude,
     longitude,
     calculateShadows: false,
-  });
+  }) as unknown as Record<CelestialBody, { position: CelestialBodyPosition }>;
 
   const results: EphemerisResult = {};
   for (const body of celestialBodies) {
-    const ephemerisRecord = ephemeris as unknown as Record<
-      string,
-      { position: unknown }
-    >;
-    if (ephemerisRecord[body]) {
-      results[body] = ephemerisRecord[body].position;
+    if (ephemeris[body]?.position) {
+      results[body] = ephemeris[body].position;
     } else {
-      results[body] = "Celestial body not found";
+      results[body] = undefined; // Handle cases where body data is not available
     }
   }
 
@@ -100,13 +152,14 @@ export function calculateEphemeris(params: EphemerisParams): EphemerisResult {
 }
 
 export function getFilteredBodies(
-  filter: "planets" | "luminaries" | "all"
+  filter: "planets" | "luminaries" | "stars" | "asteroids" | "all"
 ): CelestialBody[] {
   switch (filter) {
     case "planets":
       return [
         "mercury",
         "venus",
+        "earth",
         "mars",
         "jupiter",
         "saturn",
@@ -116,6 +169,10 @@ export function getFilteredBodies(
       ];
     case "luminaries":
       return ["sun", "moon"];
+    case "stars":
+      return ["sirius"];
+    case "asteroids":
+      return ["chiron"];
     case "all":
     default:
       return [...ALL_BODIES];

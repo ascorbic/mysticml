@@ -1,24 +1,11 @@
 {
   "version": "5",
   "specifiers": {
-    "jsr:@std/assert@1": "1.0.13",
-    "jsr:@std/internal@^1.0.6": "1.0.9",
     "npm:@modelcontextprotocol/sdk@*": "1.15.0_express@5.1.0_zod@3.25.74",
     "npm:@modelcontextprotocol/sdk@^1.15.0": "1.15.0_express@5.1.0_zod@3.25.74",
     "npm:fetch-to-node@*": "2.1.0",
     "npm:fetch-to-node@^2.1.0": "2.1.0",
     "npm:zod@^3.25.75": "3.25.75"
-  },
-  "jsr": {
-    "@std/assert@1.0.13": {
-      "integrity": "ae0d31e41919b12c656c742b22522c32fb26ed0cba32975cb0de2a273cb68b29",
-      "dependencies": [
-        "jsr:@std/internal"
-      ]
-    },
-    "@std/internal@1.0.9": {
-      "integrity": "bdfb97f83e4db7a13e8faab26fb1958d1b80cc64366501af78a0aee151696eb8"
-    }
   },
   "npm": {
     "@modelcontextprotocol/sdk@1.15.0_express@5.1.0_zod@3.25.74": {
@@ -534,11 +521,6 @@
     "https://esm.sh/gh/0xStarcat/Moshier-Ephemeris-JS@639d224/src/Ephemeris.js": "7e4e9ca778e8fe68aba0b1cfafb9c9676ead3f3e282546629d7220c8839a6b09"
   },
   "workspace": {
-    "dependencies": [
-      "jsr:@std/assert@1",
-      "npm:@modelcontextprotocol/sdk@^1.15.0",
-      "npm:fetch-to-node@^2.1.0"
-    ],
     "packageJson": {
       "dependencies": [
         "npm:@modelcontextprotocol/sdk@^1.15.0",
