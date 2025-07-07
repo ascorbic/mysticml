@@ -1,12 +1,13 @@
 {
-  "version": "4",
+  "version": "5",
   "specifiers": {
     "jsr:@std/assert@1": "1.0.13",
     "jsr:@std/internal@^1.0.6": "1.0.9",
     "npm:@modelcontextprotocol/sdk@*": "1.15.0_express@5.1.0_zod@3.25.74",
     "npm:@modelcontextprotocol/sdk@^1.15.0": "1.15.0_express@5.1.0_zod@3.25.74",
     "npm:fetch-to-node@*": "2.1.0",
-    "npm:fetch-to-node@^2.1.0": "2.1.0"
+    "npm:fetch-to-node@^2.1.0": "2.1.0",
+    "npm:zod@^3.25.75": "3.25.75"
   },
   "jsr": {
     "@std/assert@1.0.13": {
@@ -33,7 +34,7 @@
         "express-rate-limit",
         "pkce-challenge",
         "raw-body",
-        "zod",
+        "zod@3.25.74",
         "zod-to-json-schema"
       ]
     },
@@ -500,7 +501,8 @@
       "integrity": "sha512-BLI3Tl1TW3Pvl70l3yq3Y64i+awpwXqsGBYWkkqMtnbXgrMD+yj7rhW0kuEDxzJaYXGjEW5ogapKNMEKNMjibA==",
       "dependencies": [
         "isexe"
-      ]
+      ],
+      "bin": true
     },
     "wrappy@1.0.2": {
       "integrity": "sha512-l4Sp/DRseor9wL6EvV2+TuQn63dMkPjZ/sp9XkghTEbV9KlPS1xUsZ3u7/IQO4wxtcFB4bgpQPRcR3QCvezPcQ=="
@@ -508,11 +510,14 @@
     "zod-to-json-schema@3.24.6_zod@3.25.74": {
       "integrity": "sha512-h/z3PKvcTcTetyjl1fkj79MHNEjm+HpD6NXheWjzOekY7kV+lwDYnHw+ivHkijnCSMz1yJaWBD9vu/Fcmk+vEg==",
       "dependencies": [
-        "zod"
+        "zod@3.25.74"
       ]
     },
     "zod@3.25.74": {
       "integrity": "sha512-J8poo92VuhKjNknViHRAIuuN6li/EwFbAC8OedzI8uxpEPGiXHGQu9wemIAioIpqgfB4SySaJhdk0mH5Y4ICBg=="
+    },
+    "zod@3.25.75": {
+      "integrity": "sha512-OhpzAmVzabPOL6C3A3gpAifqr9MqihV/Msx3gor2b2kviCgcb+HM9SEOpMWwwNp9MRunWnhtAKUoo0AHhjyPPg=="
     }
   },
   "redirects": {
@@ -537,7 +542,8 @@
     "packageJson": {
       "dependencies": [
         "npm:@modelcontextprotocol/sdk@^1.15.0",
-        "npm:fetch-to-node@^2.1.0"
+        "npm:fetch-to-node@^2.1.0",
+        "npm:zod@^3.25.75"
       ]
     }
   }
