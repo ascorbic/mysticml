@@ -177,11 +177,16 @@ export default async function handler(req: Request) {
     // Handle MCP protocol over HTTP
     if (req.method === "POST") {
       const body = await req.json();
+      const requestId = body.id || 1;
       
       // Handle tools/list request
       if (body.method === "tools/list") {
         return Response.json({
-          tools: MCP_TOOLS
+          jsonrpc: "2.0",
+          id: requestId,
+          result: {
+            tools: MCP_TOOLS
+          }
         });
       }
       
@@ -189,22 +194,41 @@ export default async function handler(req: Request) {
       if (body.method === "tools/call") {
         const { name, arguments: args } = body.params;
         const response = await handleToolCall(name, args);
-        return Response.json(response);
+        return Response.json({
+          jsonrpc: "2.0",
+          id: requestId,
+          result: response
+        });
       }
       
       // Handle initialize request
       if (body.method === "initialize") {
         return Response.json({
-          protocolVersion: "2024-11-05",
-          capabilities: {
-            tools: {}
-          },
-          serverInfo: {
-            name: "ephemeris-server",
-            version: "1.0.0"
+          jsonrpc: "2.0",
+          id: requestId,
+          result: {
+            protocolVersion: "2024-11-05",
+            capabilities: {
+              tools: {}
+            },
+            serverInfo: {
+              name: "ephemeris-server",
+              version: "1.0.0"
+            }
           }
         });
       }
+      
+      // Handle unknown methods
+      return Response.json({
+        jsonrpc: "2.0",
+        id: requestId,
+        error: {
+          code: -32601,
+          message: "Method not found",
+          data: { method: body.method }
+        }
+      });
     }
     
     // Handle GET requests - return server info
@@ -221,6 +245,20 @@ export default async function handler(req: Request) {
     
   } catch (error) {
     console.error("MCP Server Error:", error);
+    
+    // Return JSON-RPC error for POST requests
+    if (req.method === "POST") {
+      return Response.json({
+        jsonrpc: "2.0",
+        id: null,
+        error: {
+          code: -32603,
+          message: "Internal error",
+          data: { error: error.message }
+        }
+      });
+    }
+    
     return new Response(`Server Error: ${error.message}`, { status: 500 });
   }
 }
