@@ -4,6 +4,7 @@
   },
   "imports": {
     "@modelcontextprotocol/sdk": "npm:@modelcontextprotocol/sdk@^1.15.0",
-    "@std/assert": "jsr:@std/assert@1"
+    "@std/assert": "jsr:@std/assert@1",
+    "fetch-to-node": "npm:fetch-to-node@^2.1.0"
   }
 }

@@ -3,7 +3,10 @@
   "specifiers": {
     "jsr:@std/assert@1": "1.0.13",
     "jsr:@std/internal@^1.0.6": "1.0.9",
-    "npm:@modelcontextprotocol/sdk@^1.15.0": "1.15.0_express@5.1.0_zod@3.25.74"
+    "npm:@modelcontextprotocol/sdk@*": "1.15.0_express@5.1.0_zod@3.25.74",
+    "npm:@modelcontextprotocol/sdk@^1.15.0": "1.15.0_express@5.1.0_zod@3.25.74",
+    "npm:fetch-to-node@*": "2.1.0",
+    "npm:fetch-to-node@^2.1.0": "2.1.0"
   },
   "jsr": {
     "@std/assert@1.0.13": {
@@ -204,6 +207,9 @@
     },
     "fast-json-stable-stringify@2.1.0": {
       "integrity": "sha512-lhd/wF+Lk98HZoTCtlVraHtfh5XYijIjalXck7saUtuanSDyLMxnHhSXEDJqHxD7msR8D0uCmqlkwjCV8xvwHw=="
+    },
+    "fetch-to-node@2.1.0": {
+      "integrity": "sha512-Wq05j6LE1GrWpT2t1YbCkyFY6xKRJq3hx/oRJdWEJpZlik3g25MmdJS6RFm49iiMJw6zpZuBOrgihOgy2jGyAA=="
     },
     "finalhandler@2.1.0": {
       "integrity": "sha512-/t88Ty3d5JWQbWYgaOGCCYfXRwV1+be02WqYYlL6h0lEiUAMPM8o8qKGO01YIkOHzka2up08wvgYD0mDiI+q3Q==",
@@ -525,7 +531,14 @@
   "workspace": {
     "dependencies": [
       "jsr:@std/assert@1",
-      "npm:@modelcontextprotocol/sdk@^1.15.0"
-    ]
+      "npm:@modelcontextprotocol/sdk@^1.15.0",
+      "npm:fetch-to-node@^2.1.0"
+    ],
+    "packageJson": {
+      "dependencies": [
+        "npm:@modelcontextprotocol/sdk@^1.15.0",
+        "npm:fetch-to-node@^2.1.0"
+      ]
+    }
   }
 }
