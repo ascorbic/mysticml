@@ -1,60 +1,455 @@
-openapi: 3.0.0
+openapi: 3.1.0
 info:
   title: Ephemeris API
   version: 1.0.0
   description: API to retrieve ephemeris data for celestial bodies based on a specific datetime.
 
 servers:
-  #  Put your site URL here
-  - url: https://example.netlify.app
+  - url: https://ephemeris.fyi
     description: Netlify Edge Function
 
 paths:
-  /ephemeris:
+  /ephemeris/get_ephemeris_data:
     get:
-      operationId: getEphemeris
+      operationId: getEphemerisData
       summary: Get Ephemeris Data
-      description: Returns ephemeris data for specified celestial bodies at a given datetime or the current datetime if not specified.
+      description: Get ephemeris data for celestial bodies at a specific location and time
       parameters:
-        - name: bodies
+        - name: latitude
           in: query
-          description: >
-            Comma-separated list of celestial bodies. If not specified, data for all bodies is returned.
-            Valid celestial bodies include: mercury, venus, mars, jupiter, saturn, uranus, neptune, pluto, sun, moon, chiron.
-          required: false
+          required: true
           schema:
-            type: string
+            type: number
+            format: float
+          description: Latitude in degrees (-90 to 90)
+        - name: longitude
+          in: query
+          required: true
+          schema:
+            type: number
+            format: float
+          description: Longitude in degrees (-180 to 180)
         - name: datetime
           in: query
-          description: >
-            The date and time for which ephemeris data is requested, in ISO 8601 format (e.g., 2023-12-31T23:59:59Z).
-            If not specified, the current date and time is used.
           required: false
           schema:
             type: string
             format: date-time
-        - name: latitude
+          description: ISO 8601 datetime string (optional, defaults to current time)
+        - name: bodies
           in: query
-          description: Latitude for location-based ephemeris.
-          required: true
+          required: false
           schema:
-            type: number
-            format: float
-        - name: longitude
-          in: query
-          description: Longitude for location-based ephemeris.
-          required: true
-          schema:
-            type: number
-            format: float
+            type: array
+            items:
+              type: string
+          style: form
+          explode: false
+          description: Comma-separated list of celestial bodies to calculate (optional, defaults to all bodies)
       responses:
-        '200':
+        "200":
           description: Successful response with ephemeris data.
           content:
             application/json:
               schema:
                 type: object
-                properties: null
                 additionalProperties: true
-        '400':
+        "400":
+          description: Bad request due to invalid parameters.
+
+  /ephemeris/get_single_body_position:
+    get:
+      operationId: getSingleBodyPosition
+      summary: Get Single Body Position
+      description: Get position data for a single celestial body
+      parameters:
+        - name: body
+          in: query
+          required: true
+          schema:
+            type: string
+          description: Name of the celestial body
+        - name: latitude
+          in: query
+          required: true
+          schema:
+            type: number
+            format: float
+          description: Latitude in degrees (-90 to 90)
+        - name: longitude
+          in: query
+          required: true
+          schema:
+            type: number
+            format: float
+          description: Longitude in degrees (-180 to 180)
+        - name: datetime
+          in: query
+          required: false
+          schema:
+            type: string
+            format: date-time
+          description: ISO 8601 datetime string (optional, defaults to current time)
+      responses:
+        "200":
+          description: Successful response with position data.
+          content:
+            application/json:
+              schema:
+                type: object
+                additionalProperties: true
+        "400":
+          description: Bad request due to invalid parameters.
+
+  /ephemeris/get_current_sky:
+    get:
+      operationId: getCurrentSky
+      summary: Get Current Sky
+      description: Get all celestial body positions for current time at a location
+      parameters:
+        - name: latitude
+          in: query
+          required: true
+          schema:
+            type: number
+            format: float
+          description: Latitude in degrees (-90 to 90)
+        - name: longitude
+          in: query
+          required: true
+          schema:
+            type: number
+            format: float
+          description: Longitude in degrees (-180 to 180)
+      responses:
+        "200":
+          description: Successful response with current sky data.
+          content:
+            application/json:
+              schema:
+                type: object
+                additionalProperties: true
+        "400":
+          description: Bad request due to invalid parameters.
+
+  /ephemeris/get_planetary_positions:
+    get:
+      operationId: getPlanetaryPositions
+      summary: Get Planetary Positions
+      description: Get positions for planets only (excluding sun and moon)
+      parameters:
+        - name: latitude
+          in: query
+          required: true
+          schema:
+            type: number
+            format: float
+          description: Latitude in degrees (-90 to 90)
+        - name: longitude
+          in: query
+          required: true
+          schema:
+            type: number
+            format: float
+          description: Longitude in degrees (-180 to 180)
+        - name: datetime
+          in: query
+          required: false
+          schema:
+            type: string
+            format: date-time
+          description: ISO 8601 datetime string (optional, defaults to current time)
+      responses:
+        "200":
+          description: Successful response with planetary positions.
+          content:
+            application/json:
+              schema:
+                type: object
+                additionalProperties: true
+        "400":
+          description: Bad request due to invalid parameters.
+
+  /ephemeris/get_luminaries:
+    get:
+      operationId: getLuminaries
+      summary: Get Luminaries
+      description: Get positions for sun and moon only
+      parameters:
+        - name: latitude
+          in: query
+          required: true
+          schema:
+            type: number
+            format: float
+          description: Latitude in degrees (-90 to 90)
+        - name: longitude
+          in: query
+          required: true
+          schema:
+            type: number
+            format: float
+          description: Longitude in degrees (-180 to 180)
+        - name: datetime
+          in: query
+          required: false
+          schema:
+            type: string
+            format: date-time
+          description: ISO 8601 datetime string (optional, defaults to current time)
+      responses:
+        "200":
+          description: Successful response with luminaries positions.
+          content:
+            application/json:
+              schema:
+                type: object
+                additionalProperties: true
+        "400":
+          description: Bad request due to invalid parameters.
+
+  /ephemeris/calculate_aspects:
+    get:
+      operationId: calculateAspects
+      summary: Calculate Aspects
+      description: Calculate astrological aspects between celestial bodies at a location and time
+      parameters:
+        - name: latitude
+          in: query
+          required: true
+          schema:
+            type: number
+            format: float
+          description: Latitude in degrees (-90 to 90)
+        - name: longitude
+          in: query
+          required: true
+          schema:
+            type: number
+            format: float
+          description: Longitude in degrees (-180 to 180)
+        - name: datetime
+          in: query
+          required: false
+          schema:
+            type: string
+            format: date-time
+          description: ISO 8601 datetime string (optional, defaults to current time)
+        - name: orb
+          in: query
+          required: false
+          schema:
+            type: number
+            format: float
+          description: "Orb tolerance in degrees (default: 8)"
+        - name: bodies
+          in: query
+          required: false
+          schema:
+            type: array
+            items:
+              type: string
+          style: form
+          explode: false
+          description: Comma-separated list of celestial bodies to calculate (optional, defaults to all bodies)
+      responses:
+        "200":
+          description: Successful response with aspect data.
+          content:
+            application/json:
+              schema:
+                type: object
+                additionalProperties: true
+        "400":
+          description: Bad request due to invalid parameters.
+
+  /ephemeris/get_moon_phase:
+    get:
+      operationId: getMoonPhase
+      summary: Get Moon Phase
+      description: Calculate moon phase and illumination percentage for a given date
+      parameters:
+        - name: datetime
+          in: query
+          required: false
+          schema:
+            type: string
+            format: date-time
+          description: ISO 8601 datetime string (optional, defaults to current time)
+      responses:
+        "200":
+          description: Successful response with moon phase data.
+          content:
+            application/json:
+              schema:
+                type: object
+                additionalProperties: true
+        "400":
+          description: Bad request due to invalid parameters.
+
+  /ephemeris/get_daily_events:
+    get:
+      operationId: getDailyEvents
+      summary: Get Daily Events
+      description: Get rising, culmination, and setting times for celestial bodies on a given date
+      parameters:
+        - name: latitude
+          in: query
+          required: true
+          schema:
+            type: number
+            format: float
+          description: Latitude in degrees (-90 to 90)
+        - name: longitude
+          in: query
+          required: true
+          schema:
+            type: number
+            format: float
+          description: Longitude in degrees (-180 to 180)
+        - name: datetime
+          in: query
+          required: true
+          schema:
+            type: string
+            format: date-time
+          description: Date to calculate events for (time component ignored)
+        - name: body
+          in: query
+          required: true
+          schema:
+            type: string
+          description: Name of the celestial body
+      responses:
+        "200":
+          description: Successful response with daily events data.
+          content:
+            application/json:
+              schema:
+                type: object
+                additionalProperties: true
+        "400":
+          description: Bad request due to invalid parameters.
+
+  /ephemeris/get_zodiac_sign:
+    get:
+      operationId: getZodiacSign
+      summary: Get Zodiac Sign
+      description: Get zodiac sign and degree for celestial body positions
+      parameters:
+        - name: latitude
+          in: query
+          required: true
+          schema:
+            type: number
+            format: float
+          description: Latitude in degrees (-90 to 90)
+        - name: longitude
+          in: query
+          required: true
+          schema:
+            type: number
+            format: float
+          description: Longitude in degrees (-180 to 180)
+        - name: datetime
+          in: query
+          required: false
+          schema:
+            type: string
+            format: date-time
+          description: ISO 8601 datetime string (optional, defaults to current time)
+        - name: body
+          in: query
+          required: true
+          schema:
+            type: string
+          description: Name of the celestial body
+      responses:
+        "200":
+          description: Successful response with zodiac sign data.
+          content:
+            application/json:
+              schema:
+                type: object
+                additionalProperties: true
+        "400":
+          description: Bad request due to invalid parameters.
+
+  /ephemeris/compare_positions:
+    get:
+      operationId: comparePositions
+      summary: Compare Positions
+      description: Compare celestial body positions between two different dates
+      parameters:
+        - name: latitude
+          in: query
+          required: true
+          schema:
+            type: number
+            format: float
+          description: Latitude in degrees (-90 to 90)
+        - name: longitude
+          in: query
+          required: true
+          schema:
+            type: number
+            format: float
+          description: Longitude in degrees (-180 to 180)
+        - name: date1
+          in: query
+          required: true
+          schema:
+            type: string
+            format: date-time
+          description: First date to compare
+        - name: date2
+          in: query
+          required: true
+          schema:
+            type: string
+            format: date-time
+          description: Second date to compare
+        - name: bodies
+          in: query
+          required: false
+          schema:
+            type: array
+            items:
+              type: string
+          style: form
+          explode: false
+          description: Comma-separated list of celestial bodies to calculate (optional, defaults to all bodies)
+      responses:
+        "200":
+          description: Successful response with position comparison data.
+          content:
+            application/json:
+              schema:
+                type: object
+                additionalProperties: true
+        "400":
+          description: Bad request due to invalid parameters.
+
+  /ephemeris/get_earth_position:
+    get:
+      operationId: getEarthPosition
+      summary: Get Earth Position
+      description: Get Earth's position in space (heliocentric coordinates)
+      parameters:
+        - name: datetime
+          in: query
+          required: false
+          schema:
+            type: string
+            format: date-time
+          description: ISO 8601 datetime string (optional, defaults to current time)
+      responses:
+        "200":
+          description: Successful response with Earth's position data.
+          content:
+            application/json:
+              schema:
+                type: object
+                additionalProperties: true
+        "400":
           description: Bad request due to invalid parameters.
