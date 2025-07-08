@@ -1,4 +1,5 @@
 import { z } from "zod";
+import type { Context } from "@netlify/edge-functions";
 import {
   getEphemerisData,
   getSingleBodyPosition,
@@ -28,14 +29,12 @@ import {
   GetEarthPositionArgsSchema,
 } from "./lib/schema.ts";
 
-export default async function handler(req: Request) {
+export default async function handler(_: Request, ctx: Context) {
   try {
-    const url = new URL(req.url);
-    const pathSegments = url.pathname.split("/").filter(Boolean);
-    const toolName = pathSegments[pathSegments.length - 1];
-
+    const toolName = ctx.params.tool;
+    console.info("Tool name:", toolName);
     const args: Record<string, string | number | string[]> = {};
-    url.searchParams.forEach((value, key) => {
+    ctx.url.searchParams.forEach((value, key) => {
       try {
         args[key] = JSON.parse(value);
       } catch {
@@ -114,7 +113,7 @@ export default async function handler(req: Request) {
       if (validationError instanceof z.ZodError) {
         return new Response(
           `Validation Error: ${validationError.errors
-            .map((e) => e.message)
+            .map((e) => `${e.path.join(".")}: ${e.message}`)
             .join(", ")}`,
           { status: 400 }
         );
@@ -124,11 +123,12 @@ export default async function handler(req: Request) {
 
     return Response.json(result);
   } catch (error) {
+    console.error("Error in ephemeris handler:", error);
     const message = error instanceof Error ? error.message : "Unknown error";
     return new Response(message, { status: 500 });
   }
 }
 
 export const config = {
-  path: "/ephemeris/*", // Wildcard to catch all tool paths
+  path: "/ephemeris/:tool",
 };
