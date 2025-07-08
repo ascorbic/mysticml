@@ -5,7 +5,7 @@ info:
   description: API to retrieve ephemeris data for celestial bodies based on a specific datetime.
 
 servers:
-  - url: https://example.netlify.app
+  - url: https://ephemeris.fyi
     description: Netlify Edge Function
 
 paths:
@@ -47,14 +47,14 @@ paths:
           explode: false
           description: Comma-separated list of celestial bodies to calculate (optional, defaults to all bodies)
       responses:
-        '200':
+        "200":
           description: Successful response with ephemeris data.
           content:
             application/json:
               schema:
                 type: object
                 additionalProperties: true
-        '400':
+        "400":
           description: Bad request due to invalid parameters.
 
   /ephemeris/get_single_body_position:
@@ -91,14 +91,14 @@ paths:
             format: date-time
           description: ISO 8601 datetime string (optional, defaults to current time)
       responses:
-        '200':
+        "200":
           description: Successful response with position data.
           content:
             application/json:
               schema:
                 type: object
                 additionalProperties: true
-        '400':
+        "400":
           description: Bad request due to invalid parameters.
 
   /ephemeris/get_current_sky:
@@ -122,14 +122,14 @@ paths:
             format: float
           description: Longitude in degrees (-180 to 180)
       responses:
-        '200':
+        "200":
           description: Successful response with current sky data.
           content:
             application/json:
               schema:
                 type: object
                 additionalProperties: true
-        '400':
+        "400":
           description: Bad request due to invalid parameters.
 
   /ephemeris/get_planetary_positions:
@@ -160,14 +160,14 @@ paths:
             format: date-time
           description: ISO 8601 datetime string (optional, defaults to current time)
       responses:
-        '200':
+        "200":
           description: Successful response with planetary positions.
           content:
             application/json:
               schema:
                 type: object
                 additionalProperties: true
-        '400':
+        "400":
           description: Bad request due to invalid parameters.
 
   /ephemeris/get_luminaries:
@@ -198,14 +198,14 @@ paths:
             format: date-time
           description: ISO 8601 datetime string (optional, defaults to current time)
       responses:
-        '200':
+        "200":
           description: Successful response with luminaries positions.
           content:
             application/json:
               schema:
                 type: object
                 additionalProperties: true
-        '400':
+        "400":
           description: Bad request due to invalid parameters.
 
   /ephemeris/calculate_aspects:
@@ -253,14 +253,14 @@ paths:
           explode: false
           description: Comma-separated list of celestial bodies to calculate (optional, defaults to all bodies)
       responses:
-        '200':
+        "200":
           description: Successful response with aspect data.
           content:
             application/json:
               schema:
                 type: object
                 additionalProperties: true
-        '400':
+        "400":
           description: Bad request due to invalid parameters.
 
   /ephemeris/get_moon_phase:
@@ -277,14 +277,14 @@ paths:
             format: date-time
           description: ISO 8601 datetime string (optional, defaults to current time)
       responses:
-        '200':
+        "200":
           description: Successful response with moon phase data.
           content:
             application/json:
               schema:
                 type: object
                 additionalProperties: true
-        '400':
+        "400":
           description: Bad request due to invalid parameters.
 
   /ephemeris/get_daily_events:
@@ -321,14 +321,14 @@ paths:
             type: string
           description: Name of the celestial body
       responses:
-        '200':
+        "200":
           description: Successful response with daily events data.
           content:
             application/json:
               schema:
                 type: object
                 additionalProperties: true
-        '400':
+        "400":
           description: Bad request due to invalid parameters.
 
   /ephemeris/get_zodiac_sign:
@@ -365,14 +365,14 @@ paths:
             type: string
           description: Name of the celestial body
       responses:
-        '200':
+        "200":
           description: Successful response with zodiac sign data.
           content:
             application/json:
               schema:
                 type: object
                 additionalProperties: true
-        '400':
+        "400":
           description: Bad request due to invalid parameters.
 
   /ephemeris/compare_positions:
@@ -420,14 +420,14 @@ paths:
           explode: false
           description: Comma-separated list of celestial bodies to calculate (optional, defaults to all bodies)
       responses:
-        '200':
+        "200":
           description: Successful response with position comparison data.
           content:
             application/json:
               schema:
                 type: object
                 additionalProperties: true
-        '400':
+        "400":
           description: Bad request due to invalid parameters.
 
   /ephemeris/get_earth_position:
@@ -444,12 +444,12 @@ paths:
             format: date-time
           description: ISO 8601 datetime string (optional, defaults to current time)
       responses:
-        '200':
+        "200":
           description: Successful response with Earth's position data.
           content:
             application/json:
               schema:
                 type: object
                 additionalProperties: true
-        '400':
+        "400":
           description: Bad request due to invalid parameters.
