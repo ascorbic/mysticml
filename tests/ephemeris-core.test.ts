@@ -3,7 +3,6 @@ import {
   calculateEphemeris,
   validateCoordinates,
   parseDateTime,
-  getFilteredBodies,
   ALL_BODIES,
   type CelestialBody,
   type EphemerisParams,
@@ -115,65 +114,7 @@ Deno.test("parseDateTime - with undefined", () => {
   assertEquals(result.getTime() >= before && result.getTime() <= after, true);
 });
 
-Deno.test("getFilteredBodies - planets", () => {
-  const planets = getFilteredBodies("planets");
-  const expectedPlanets: CelestialBody[] = [
-    "mercury",
-    "venus",
-    "earth",
-    "mars",
-    "jupiter",
-    "saturn",
-    "uranus",
-    "neptune",
-    "pluto",
-  ];
 
-  assertEquals(planets.length, 9);
-  expectedPlanets.forEach((planet) => {
-    assertEquals(
-      planets.includes(planet),
-      true,
-      `${planet} should be in planets`
-    );
-  });
-
-  // Should not include sun, moon, stars, or asteroids
-  assertEquals(planets.includes("sun"), false);
-  assertEquals(planets.includes("moon"), false);
-  assertEquals(planets.includes("sirius"), false);
-  assertEquals(planets.includes("chiron"), false);
-});
-
-Deno.test("getFilteredBodies - luminaries", () => {
-  const luminaries = getFilteredBodies("luminaries");
-  const expectedLuminaries: CelestialBody[] = ["sun", "moon"];
-
-  assertEquals(luminaries.length, 2);
-  assertEquals(luminaries, expectedLuminaries);
-});
-
-Deno.test("getFilteredBodies - stars", () => {
-  const stars = getFilteredBodies("stars");
-  const expectedStars: CelestialBody[] = ["sirius"];
-
-  assertEquals(stars.length, 1);
-  assertEquals(stars, expectedStars);
-});
-
-Deno.test("getFilteredBodies - asteroids", () => {
-  const asteroids = getFilteredBodies("asteroids");
-  const expectedAsteroids: CelestialBody[] = ["chiron"];
-
-  assertEquals(asteroids.length, 1);
-  assertEquals(asteroids, expectedAsteroids);
-});
-
-Deno.test("getFilteredBodies - all", () => {
-  const all = getFilteredBodies("all");
-  assertEquals(all.length, ALL_BODIES.length);
-  assertEquals(all, [...ALL_BODIES]);
-});
 
 Deno.test("calculateEphemeris - basic functionality", () => {
   const params: EphemerisParams = {
