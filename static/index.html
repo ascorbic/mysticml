@@ -4,46 +4,240 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Stellar Guide</title>
+    <title>ephemeris.fyi - Remote MCP Server</title>
     <style>
         body {
             background-color: #070038;
             font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
-            padding-top: 100px;
-            color: white
+            color: white;
+            max-width: 900px;
+            margin: 0 auto;
+            padding: 20px;
+            line-height: 1.6;
         }
 
-        h1 {
+        h1,
+        h2 {
             text-align: center;
+        }
+
+        h3 {
+            color: #8A2BE2;
+            margin-top: 30px;
         }
 
         a:link,
         a:visited {
-            color: white;
+            color: #9370DB;
             text-decoration: underline;
+        }
+
+        a:hover {
+            color: #BA55D3;
         }
 
         .logo {
             display: block;
             margin: auto;
             object-fit: cover;
+            margin-bottom: 20px;
         }
 
-        ul {
+        .content-section {
+            margin-top: 40px;
+        }
+
+        .code-block {
+            background-color: #1a1a2e;
+            padding: 15px;
+            border-radius: 5px;
+            overflow-x: auto;
+            margin: 10px 0;
+        }
+
+        .code-block code {
+            font-family: 'Courier New', monospace;
+            font-size: 14px;
+            color: #e6e6fa;
+        }
+
+        .tool-list {
+            background-color: #0f0f23;
+            padding: 20px;
+            border-radius: 8px;
+            margin: 20px 0;
+        }
+
+        .tool-list ul {
+            margin: 0;
+            padding-left: 20px;
+        }
+
+        .tool-list li {
+            margin: 8px 0;
+            color: #b8b8d4;
+        }
+
+        .centered-list {
             text-align: center;
             list-style: none;
             padding: 0;
         }
 
-        li {
-            margin: 10px 0;
+        .centered-list li {
+            margin: 15px 0;
+        }
+
+        .highlight {
+            background-color: #2d1b69;
+            padding: 2px 6px;
+            border-radius: 3px;
         }
     </style>
-    <img src="/.netlify/images?url=logo.webp&w=200&h=200" alt="GraphQL Guide Logo" class="logo">
-    <h1>Stellar Guide</h1>
-    <ul>
-        <li><a href="https://chat.openai.com/g/g-dUZg6nVPD-stellar-guide">Open in ChatGPT</a></li>
+</head>
+
+<body>
+    <img src="/.netlify/images?url=logo.webp&w=200&h=200" alt="ephemeris.fyi Logo" class="logo">
+    <h1>ephemeris.fyi</h1>
+    <p style="text-align: center; font-size: 18px; color: #9370DB;">Remote MCP Server and API for Ephemeris Data</p>
+
+    <div class="content-section">
+        <h2>What is This?</h2>
+        <p>
+            This is a totally free <strong>remote Model Context Protocol (MCP) server</strong> and API that provides
+            ephemeris data
+            for celestial bodies. MCP provides a standardized way to connect AI models to different data sources and
+            tools.
+        </p>
+        <p>
+            Our server offers 11 specialized tools for astronomical and astrological calculations, accessible by AI
+            assistants like Claude, ChatGPT, and other MCP-compatible applications.
+        </p>
+    </div>
+
+    <div class="content-section">
+        <h2>Using the MCP Server</h2>
+
+        <h3>With Claude (Web & Desktop)</h3>
+        <p>Add this remote MCP server to Claude through your web interface:</p>
+        <ol>
+            <li>Go to <a href="https://claude.ai">Claude.ai</a> Settings > Integrations</li>
+            <li>Click "Add custom integration"</li>
+            <li>Enter the server URL: <code>https://ephemeris.fyi/mcp</code></li>
+            <li>Click "Add" to complete the configuration</li>
+        </ol>
+        <p><strong>Requirements:</strong> Available for Claude Pro, Max, Team, and Enterprise plans (currently in beta)
+        </p>
+
+
+        <h3>With Cursor IDE</h3>
+        <p>Click the button below to add the server to Cursor:</p>
+        <p style="text-align: center; margin-top: 15px;">
+            <a
+                href="cursor://anysphere.cursor-deeplink/mcp/install?name=ephemeris&config=eyJ1cmwiOiJodHRwczovL2VwaGVtZXJpcy5meWkvbWNwIn0%3D"><img
+                    src="https://cursor.com/deeplink/mcp-install-light.svg" alt="Add server-name MCP server to Cursor"
+                    height="32" /></a>
+        </p>
+
+        <p>Alternatively, add this remote MCP server to Cursor IDE:</p>
+        <ol>
+            <li>Go to Settings > Cursor Settings</li>
+            <li>Enable "MCP servers"</li>
+            <li>Create or edit <code>.cursor/mcp.json</code> in your project (or <code>~/.cursor/mcp.json</code> for
+                global access)</li>
+            <li>Add the following configuration:</li>
+        </ol>
+        <div class="code-block">
+            <pre>{
+  "mcpServers": {
+    "ephemeris": {
+      "url": "https://ephemeris.fyi/mcp"
+    }
+  }
+}</pre>
+        </div>
+
+        <h3>With Other MCP Clients</h3>
+        <p>Connect to our MCP server at:</p>
+        <div class="code-block">
+            <code>https://ephemeris.fyi/mcp</code>
+        </div>
+        <p>Our server uses <span class="highlight">StreamableHTTP transport</span> with JSON-RPC 2.0 for stateless
+            communication.</p>
+    </div>
+
+    <div class="content-section">
+        <h2>Available Tools</h2>
+        <div class="tool-list">
+            <ul>
+                <li><strong>get_ephemeris_data</strong> - Complete ephemeris data for multiple bodies</li>
+                <li><strong>get_single_body_position</strong> - Position data for one celestial body</li>
+                <li><strong>get_current_sky</strong> - All celestial bodies for current time/location</li>
+                <li><strong>get_planetary_positions</strong> - Planets only (excluding sun/moon)</li>
+                <li><strong>get_luminaries</strong> - Sun and moon positions only</li>
+                <li><strong>calculate_aspects</strong> - Astrological aspects between bodies</li>
+                <li><strong>get_moon_phase</strong> - Moon phase and illumination data</li>
+                <li><strong>get_daily_events</strong> - Rising, culmination, and setting times</li>
+                <li><strong>get_zodiac_sign</strong> - Zodiac sign and degree for positions</li>
+                <li><strong>compare_positions</strong> - Compare positions between two dates</li>
+                <li><strong>get_earth_position</strong> - Earth's heliocentric coordinates</li>
+            </ul>
+        </div>
+        <p><strong>Supported Bodies:</strong> mercury, venus, mars, jupiter, saturn, uranus, neptune, pluto, sun, moon,
+            chiron</p>
+    </div>
+
+    <div class="content-section">
+        <h2>REST API (Alternative)</h2>
+        <p>If you prefer traditional REST API calls, all MCP tools are also available as REST endpoints:</p>
+        <div class="code-block">
+            <code># Get sun position
+GET /ephemeris/get_single_body_position?body=sun&latitude=40.7128&longitude=-74.0060&datetime=2025-01-01T12:00:00Z
+
+# Get multiple bodies
+GET /ephemeris/get_ephemeris_data?bodies=sun,moon,mars&latitude=40.7128&longitude=-74.0060&datetime=2025-01-01T12:00:00Z
+
+# Calculate aspects
+GET /ephemeris/calculate_aspects?bodies=sun,moon,mars&latitude=40.7128&longitude=-74.0060&datetime=2025-01-01T12:00:00Z</code>
+        </div>
+        <p>Full API documentation is available in our <a href="/openapi.yml">OpenAPI specification</a>.
+        </p>
+    </div>
+
+    <div class="content-section">
+        <h2>Example Use Cases</h2>
+        <ul>
+            <li><strong>Astronomical Research:</strong> Precise celestial body positions for scientific calculations
+            </li>
+            <li><strong>Observational Astronomy:</strong> Planning observations with rise/set times and current sky data
+            </li>
+            <li><strong>Astrological Applications:</strong> Birth chart calculations and aspect analysis</li>
+            <li><strong>Educational Tools:</strong> Teaching astronomy and celestial mechanics</li>
+            <li><strong>AI-Powered Analysis:</strong> Letting AI assistants interpret celestial data</li>
+            <li><strong>Mobile & Web Apps:</strong> Integrating ephemeris data into applications</li>
+        </ul>
+    </div>
+
+    <div class="content-section">
+        <h2>About</h2>
+        <p>
+            Created by <a href="https://mk.gg">Matt Kane</a>. This open-source project is available on <a
+                href="https://github.com/ascorbic/ephemeris">GitHub</a>.
+        </p>
+        <p>
+            This service is powered by the <a href="https://github.com/0xStarcat/Moshier-Ephemeris-JS">Moshier Ephemeris
+                JS</a> library, which implements Steve L. Moshier's astronomical ephemeris calculations in JavaScript.
+            The Moshier Ephemeris provides high-precision planetary and lunar positions based on established
+            astronomical algorithms.
+        </p>
+    </div>
+
+    <ul class="centered-list content-section">
+        <li><a href="https://modelcontextprotocol.io/introduction">Learn More About MCP</a></li>
+        <li><a href="/openapi.yml">OpenAPI Specification</a></li>
         <li><a href="/privacy">Privacy Policy</a></li>
     </ul>
 
-</head>
+</body>
+
+</html>
