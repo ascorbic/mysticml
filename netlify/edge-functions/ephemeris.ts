@@ -111,12 +111,13 @@ export default async function handler(_: Request, ctx: Context) {
       }
     } catch (validationError) {
       if (validationError instanceof z.ZodError) {
-        return new Response(
-          `Validation Error: ${validationError.errors
-            .map((e) => `${e.path.join(".")}: ${e.message}`)
-            .join(", ")}`,
-          { status: 400 }
-        );
+        const errorDetails = validationError.errors
+          .map((e) => `${e.path.join(".")}: ${e.message}`)
+          .join(", ");
+        console.error("Validation Error:", errorDetails);
+        return new Response(`Validation Error: ${errorDetails}`, {
+          status: 400,
+        });
       }
       throw validationError;
     }
