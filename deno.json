@@ -1,0 +1,31 @@
+{
+  "tasks": {
+    "test": "deno test --allow-net --allow-read tests/",
+    "test:watch": "deno test --allow-net --allow-read --watch tests/",
+    "test:core": "deno test --allow-net --allow-read tests/ephemeris-core.test.ts",
+    "test:mcp": "deno test --allow-net --allow-read tests/mcp-server.test.ts", 
+    "test:integration": "deno test --allow-net --allow-read tests/integration.test.ts",
+    "lint": "deno lint netlify/ tests/",
+    "check": "deno check netlify/edge-functions/**/*.ts tests/**/*.ts"
+  },
+  "imports": {
+    "@std/assert": "jsr:@std/assert@1"
+  },
+  "compilerOptions": {
+    "lib": ["dom", "deno.ns", "es2022"],
+    "strict": true
+  },
+  "lint": {
+    "rules": {
+      "tags": ["recommended"]
+    }
+  },
+  "fmt": {
+    "useTabs": false,
+    "lineWidth": 100,
+    "indentWidth": 2,
+    "semiColons": true,
+    "singleQuote": false,
+    "proseWrap": "preserve"
+  }
+}

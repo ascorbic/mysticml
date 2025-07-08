@@ -1,7 +1,3 @@
-// import { McpServer } from "npm:@modelcontextprotocol/sdk/server/mcp.js";
-// import { StreamableHTTPServerTransport } from "npm:@modelcontextprotocol/sdk/server/streamableHttp.js";
-// import { toReqRes, toFetchResponse } from "npm:fetch-to-node";
-// import { z } from "npm:zod";
 import { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
 import { StreamableHTTPServerTransport } from "@modelcontextprotocol/sdk/server/streamableHttp.js";
 import { toReqRes, toFetchResponse } from "fetch-to-node";
@@ -231,9 +227,18 @@ function getServer(): McpServer {
 
       const positions: Record<string, number> = {};
       for (const [body, data] of Object.entries(result)) {
-        if (data?.longitude !== undefined) {
-          positions[body] = data.longitude;
+        if (data && typeof data === "object") {
+          const longitude = data.apparentLongitude ?? data.longitude;
+          if (typeof longitude === "number" && !isNaN(longitude)) {
+            positions[body] = longitude;
+          }
         }
+      }
+
+      if (Object.keys(positions).length < 2) {
+        throw new Error(
+          "Need at least 2 bodies with valid positions to calculate aspects"
+        );
       }
 
       const aspects = [];
@@ -289,30 +294,49 @@ function getServer(): McpServer {
     },
     (args) => {
       const result = calculateEphemeris({
-        latitude: 0, // Moon phase is the same globally
+        latitude: 0,
         longitude: 0,
         datetime: args.datetime,
         bodies: ["sun", "moon"],
       });
-      const sunLon = result.sun?.longitude ?? 0;
-      const moonLon = result.moon?.longitude ?? 0;
-      const angle = (moonLon - sunLon + 360) % 360;
 
+      if (!result.sun?.apparentLongitude || !result.moon?.apparentLongitude) {
+        throw new Error("Failed to calculate sun or moon position");
+      }
+
+      const sunLon = result.sun.apparentLongitude;
+      const moonLon = result.moon.apparentLongitude;
+
+      // Calculate elongation (angular separation)
+      const elongation = (moonLon - sunLon + 360) % 360;
+
+      // The phase angle for illumination is the angle between Sun and Moon as seen from Earth
+      // When elongation = 0° (new moon), phase angle = 180° (dark side facing us)
+      // When elongation = 180° (full moon), phase angle = 0° (bright side facing us)
+      const phaseAngle = Math.abs(180 - elongation);
+
+      // Calculate illumination using the correct phase angle
+      const illumination =
+        ((1 + Math.cos((phaseAngle * Math.PI) / 180)) / 2) * 100;
+
+      // Determine phase name
       let phase = "";
-      let illumination = 0;
-
-      if (angle < 45 || angle >= 315) {
+      if (elongation < 22.5 || elongation >= 337.5) {
         phase = "New Moon";
-        illumination = (Math.abs(angle - (angle > 180 ? 360 : 0)) / 45) * 50;
-      } else if (angle < 135) {
-        phase = "Waxing";
-        illumination = 50 + ((angle - 45) / 90) * 50;
-      } else if (angle < 225) {
+      } else if (elongation < 67.5) {
+        phase = "Waxing Crescent";
+      } else if (elongation < 112.5) {
+        phase = "First Quarter";
+      } else if (elongation < 157.5) {
+        phase = "Waxing Gibbous";
+      } else if (elongation < 202.5) {
         phase = "Full Moon";
-        illumination = 100 - (Math.abs(angle - 180) / 45) * 50;
+      } else if (elongation < 247.5) {
+        phase = "Waning Gibbous";
+      } else if (elongation < 292.5) {
+        phase = "Third Quarter";
       } else {
-        phase = "Waning";
-        illumination = 50 - ((angle - 225) / 90) * 50;
+        phase = "Waning Crescent";
       }
 
       return {
@@ -323,7 +347,8 @@ function getServer(): McpServer {
               {
                 phase,
                 illumination: Math.round(illumination * 100) / 100,
-                angle: Math.round(angle * 100) / 100,
+                elongation: Math.round(elongation * 100) / 100,
+                phase_angle: Math.round(phaseAngle * 100) / 100,
                 sun_longitude: Math.round(sunLon * 100) / 100,
                 moon_longitude: Math.round(moonLon * 100) / 100,
               },
@@ -352,11 +377,15 @@ function getServer(): McpServer {
     (args) => {
       const date = new Date(args.datetime);
       const events = [];
+      let previousAltitude = null;
+      let maxAltitude = -90;
+      let maxAltitudeTime = null;
 
       // Calculate positions at different times throughout the day
-      for (let hour = 0; hour < 24; hour += 0.5) {
+      for (let hour = 0; hour < 24; hour += 0.25) {
+        // Higher resolution
         const testDate = new Date(date);
-        testDate.setUTCHours(hour, 0, 0, 0);
+        testDate.setUTCHours(Math.floor(hour), (hour % 1) * 60, 0, 0);
 
         const result = calculateEphemeris({
           latitude: args.latitude,
@@ -366,33 +395,56 @@ function getServer(): McpServer {
         });
 
         const bodyData = result[args.body];
-        const altitude = bodyData?.altitude || 0;
-        const azimuth = bodyData?.azimuth || 0;
+        if (!bodyData?.altaz) continue;
 
-        // Approximate events based on altitude
-        if (Math.abs(altitude) < 1 && azimuth < 180) {
-          events.push({
-            event: "rising",
-            time: testDate.toISOString(),
-            altitude,
-            azimuth,
-          });
-        } else if (altitude > 85) {
-          events.push({
-            event: "culmination",
-            time: testDate.toISOString(),
-            altitude,
-            azimuth,
-          });
-        } else if (Math.abs(altitude) < 1 && azimuth > 180) {
-          events.push({
-            event: "setting",
-            time: testDate.toISOString(),
-            altitude,
-            azimuth,
-          });
+        const altitude = bodyData.altaz.topocentric?.altitude;
+        const azimuth = bodyData.altaz.topocentric?.azimuth;
+
+        if (typeof altitude !== "number" || typeof azimuth !== "number")
+          continue;
+
+        // Track highest altitude for culmination
+        if (altitude > maxAltitude) {
+          maxAltitude = altitude;
+          maxAltitudeTime = testDate.toISOString();
         }
+
+        // Detect crossing horizon (rise/set)
+        if (previousAltitude !== null) {
+          if (previousAltitude < 0 && altitude > 0) {
+            events.push({
+              event: "rising",
+              time: testDate.toISOString(),
+              altitude: Math.round(altitude * 100) / 100,
+              azimuth: Math.round(azimuth * 100) / 100,
+            });
+          } else if (previousAltitude > 0 && altitude < 0) {
+            events.push({
+              event: "setting",
+              time: testDate.toISOString(),
+              altitude: Math.round(altitude * 100) / 100,
+              azimuth: Math.round(azimuth * 100) / 100,
+            });
+          }
+        }
+
+        previousAltitude = altitude;
       }
+
+      // Add culmination if we found a maximum
+      if (maxAltitudeTime && maxAltitude > 0) {
+        events.push({
+          event: "culmination",
+          time: maxAltitudeTime,
+          altitude: Math.round(maxAltitude * 100) / 100,
+          azimuth: 180, // Approximate
+        });
+      }
+
+      // Sort events by time
+      events.sort(
+        (a, b) => new Date(a.time).getTime() - new Date(b.time).getTime()
+      );
 
       return {
         content: [
@@ -402,7 +454,7 @@ function getServer(): McpServer {
               {
                 body: args.body,
                 date: date.toISOString().split("T")[0],
-                events: events.slice(0, 10), // Limit results
+                events: events.slice(0, 6), // Limit results
               },
               null,
               2
@@ -431,7 +483,25 @@ function getServer(): McpServer {
         bodies: [args.body],
       });
 
-      const longitude = result[args.body]?.longitude ?? 0;
+      const bodyData = result[args.body];
+      if (!bodyData) {
+        return {
+          content: [
+            {
+              type: "text",
+              text: JSON.stringify(
+                { error: `No data available for ${args.body}` },
+                null,
+                2
+              ),
+            },
+          ],
+        };
+      }
+      let longitude = bodyData.apparentLongitude;
+
+      // Normalize longitude to 0-360 range
+      longitude = ((longitude % 360) + 360) % 360;
 
       const signs = [
         "Aries",
@@ -450,7 +520,7 @@ function getServer(): McpServer {
 
       const signIndex = Math.floor(longitude / 30);
       const degree = longitude % 30;
-      const sign = signs[signIndex] || signs[0];
+      const sign = signs[Math.min(signIndex, signs.length - 1)];
 
       return {
         content: [
@@ -508,9 +578,13 @@ function getServer(): McpServer {
           direction: string;
         }
       > = {};
+
       for (const body of args.bodies || ALL_BODIES) {
-        const pos1 = result1[body]?.longitude ?? 0;
-        const pos2 = result2[body]?.longitude ?? 0;
+        const data1 = result1[body];
+        const data2 = result2[body];
+        if (!data1 || !data2) continue; // Skip bodies with missing data
+        const pos1 = data1.apparentLongitude;
+        const pos2 = data2.apparentLongitude;
         const movement = ((pos2 - pos1 + 540) % 360) - 180; // Handle wraparound
 
         comparison[body] = {
@@ -587,7 +661,6 @@ export default async function handler(req: Request) {
 
       // Handle response closing
       nodeRes.on("close", () => {
-        console.log("Request closed");
         transport.close();
         server.close();
       });
@@ -595,7 +668,6 @@ export default async function handler(req: Request) {
       // Convert Node.js ServerResponse back to Web API Response
       return toFetchResponse(nodeRes);
     } catch (error) {
-      console.error("MCP Server Error:", error);
       const errorMessage =
         error instanceof Error ? error.message : String(error);
       return new Response(`Server Error: ${errorMessage}`, { status: 500 });

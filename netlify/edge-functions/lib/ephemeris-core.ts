@@ -25,60 +25,220 @@ export interface EphemerisParams {
   longitude: number;
 }
 
+// Time-based coordinate structures
+export interface TimeCoords {
+  hours: number;
+  minutes: number;
+  seconds: number;
+  milliseconds?: number;
+}
+
+export interface DegreeCoords {
+  degree: number;
+  minutes: number;
+  seconds: number;
+}
+
+// Coordinate data structures
+export interface RaDecCoords {
+  ra: TimeCoords;
+  dec: DegreeCoords;
+}
+
+export interface DiurnalAberration {
+  ra: number;
+  dec: number;
+  dRA: number;
+  dDec: number;
+}
+
+export interface DiurnalParallax {
+  ra: number;
+  dec: number;
+  dRA: number;
+  dDec: number;
+}
+
+export interface AtmosphericRefraction {
+  deg: number;
+  dRA: number;
+  dDec: number;
+}
+
+export interface TransitData {
+  approxLocalMeridian: TimeCoords;
+  UTdate: number;
+  dApproxRiseUT: number;
+  dApproxSetUT: number;
+  approxRiseUT: TimeCoords;
+  approxSetUT: TimeCoords;
+}
+
+// Topocentric coordinates (as seen from observer's location)
+export interface TopocentricCoords {
+  altitude: number;
+  azimuth: number;
+  ra: number;
+  dec: number;
+  dRA: TimeCoords;
+  dDec: DegreeCoords;
+}
+
 // Coordinate system interfaces
 export interface ApparentGeocentricCoords {
+  longitude?: number;
+  latitude?: number;
+  distance?: number;
+}
+
+export interface AltazData {
+  dLocalApparentSiderialTime: number;
+  localApparentSiderialTime: TimeCoords;
+  diurnalAberation: DiurnalAberration;
+  transit: TransitData;
+  diurnalParallax: DiurnalParallax;
+  atmosphericRefraction: AtmosphericRefraction;
+  topocentric: TopocentricCoords;
+}
+
+export interface ApproxVisual {
+  magnitude?: number;
+  phase?: number;
+}
+
+// Geometric coordinates
+export interface GeometricCoords {
   longitude: number;
   latitude: number;
   distance: number;
 }
 
-export interface AltazData {
-  altitude: number;
-  azimuth: number;
-  atmosphericRefraction?: number;
-  diurnalAberation?: number;
-  diurnalParallax?: number;
-  topocentric?: unknown;
-  transit?: unknown;
+// Apparent coordinates with additional data
+export interface ApparentCoords {
+  dRA: number;
+  dDec: number;
+  ra: TimeCoords;
+  dec: DegreeCoords;
 }
 
-export interface ApproxVisual {
-  magnitude: number;
-  phase: number;
+// Moon-specific phase data
+export interface MoonPhaseData {
+  phaseDecimal: number;
+  phaseQuarter: number;
+  phaseQuarterString: string;
+  phaseDaysBefore: number;
+  phaseDaysPast: number;
+  phaseDaysDistance: number;
+  illuminatedFraction: number;
+  shapeString: string;
+  shapeDirectionString: string;
+  withinQuarterApproximation: boolean;
+  quarterApproximationString?: string;
+  quarterApproximationDirectionString?: string;
+  sunElongation: number;
+  dHorizontalParallax: number;
+  horizontalParallax: DegreeCoords;
+  dSemidiameter: number;
+  Semidiameter: DegreeCoords;
 }
 
-// Main position data interface
+// Nutation data
+export interface NutationData {
+  dRA: number;
+  dDec: number;
+}
+
+// Annual aberration data
+export interface AnnualAberrationData {
+  dRA: number;
+  dDec: number;
+}
+
+// Aberration/deflection data (same structure)
+export interface AberrationData {
+  dRA: number;
+  dDec: number;
+}
+
+// Type alias for clarity
+export type DeflectionData = AberrationData;
+
+// Equinox ecliptic longitude/latitude with additional coordinate data
+export interface EquinoxEclipticData {
+  "0": number; // longitude in radians
+  "1": number; // latitude in radians  
+  "2": number; // distance
+  "3": DegreeCoords; // longitude in degrees/minutes/seconds
+  "4": DegreeCoords; // latitude in degrees/minutes/seconds
+}
+
+// Main celestial body position interface - compatible with all body types
 export interface CelestialBodyPosition {
-  // Primary coordinate properties
-  longitude: number;
-  latitude: number;
+  // Core coordinate properties (present in all bodies)
   apparentLongitude: number;
   apparentLongitudeString: string;
   apparentLongitude30String: string;
-
-  // Distance and positioning
   geocentricDistance: number;
-  trueGeocentricDistance: number;
-  equatorialDiameter: number;
-
-  // Coordinate systems
-  apparentGeocentric: ApparentGeocentricCoords;
-  astrometricB1950: unknown;
-  astrometricJ2000: unknown;
-  polar: number[];
-  rect: number[];
-
-  // Local observation data
   altaz: AltazData;
-  altitude: number; // Direct access to altitude
-  azimuth: number; // Direct access to azimuth
+  apparent: ApparentCoords;
+  constellation?: string;
 
-  // Additional properties
-  constellation: string;
-  approxVisual: ApproxVisual;
+  // Sun-specific properties
+  equinoxEclipticLonLat?: EquinoxEclipticData;
+  lightTime?: number;
+
+  // Moon-specific properties
+  polar?: number[];
+  rect?: number[];
+  nutation?: NutationData;
+  geometric?: GeometricCoords;
+  annualAberration?: AnnualAberrationData;
+  // Moon phase properties (from MoonPhaseData)
+  phaseDecimal?: number;
+  phaseQuarter?: number;
+  phaseQuarterString?: string;
+  phaseDaysBefore?: number;
+  phaseDaysPast?: number;
+  phaseDaysDistance?: number;
+  illuminatedFraction?: number;
+  shapeString?: string;
+  shapeDirectionString?: string;
+  withinQuarterApproximation?: boolean;
+  quarterApproximationString?: string;
+  quarterApproximationDirectionString?: string;
+  sunElongation?: number;
+  dHorizontalParallax?: number;
+  horizontalParallax?: DegreeCoords;
+  dSemidiameter?: number;
+  Semidiameter?: DegreeCoords;
+
+  // Planet-specific properties
+  trueGeocentricDistance?: number;
+  equatorialDiameter?: number;
+  approxVisual?: ApproxVisual;
+  astrometricJ2000?: ApparentCoords;
+  astrometricB1950?: ApparentCoords;
+  deflection?: DeflectionData;
+
+  // Star-specific properties
+  approxVisualMagnitude?: number;
+  astrimetricJ2000?: ApparentCoords;
+  astrimetricB1950?: ApparentCoords;
+  astrimetricDate?: ApparentCoords;
+
+  // Common aberration data
+  aberration: AberrationData;
+
+  // Apparent geocentric coordinates (with optional extended data for Moon)
+  apparentGeocentric?: ApparentGeocentricCoords & {
+    dLongitude?: number;
+    dLatitude?: number;
+  };
+
+  // Allow for additional unknown properties from the library
+  [key: string]: unknown;
 }
 
-// Alternatively, we could use a type alias for the mapped type
 export type EphemerisResult = {
   [K in CelestialBody]?: CelestialBodyPosition;
 };
